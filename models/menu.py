@@ -1,8 +1,17 @@
-response.title = settings.title
-response.subtitle = settings.subtitle
-response.meta.author = '%(author)s <%(author_email)s>' % settings
-response.meta.keywords = settings.keywords
-response.meta.description = settings.description
+response.title = "Sloecoach"
+response.subtitle = "Ginuine coaching"
+response.meta.author = ''
+response.meta.keywords = ''
+response.meta.description = ''
 response.menu = [
-(T('Index'),URL('default','index')==URL(),URL('default','index'),[]),
+    (T('Index'), False, URL('default','index'),[]),
+    (T('Configuration'), False, None, [
+        (T('Stacks'), False, URL('config','stacks'), [])
+    ]),
+    (T('Properties'), False, None, [
+        (T('Item properties'), False, URL('props','items'), [])
+    ]),
+    (T('Tasks'), False, None, [
+        (T('Read primary footage'), False, URL('task','readprimary'), [])
+    ])
 ]

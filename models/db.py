@@ -131,6 +131,6 @@ auth.settings.reset_password_requires_verification = True
 # -------------------------------------------------------------------------
 # auth.enable_record_versioning(db)
 
-mail.settings.server = settings.email_server
-mail.settings.sender = settings.email_sender
-mail.settings.login = settings.email_login
+mail.settings.server = "logging"
+mail.settings.sender = "no@sender.com"
+mail.settings.login = "nologin"
