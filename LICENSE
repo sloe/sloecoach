@@ -199,3 +199,14 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+----------------------------------------------------------------------------
+
+This package also contains files under the following licences:
+
+-- web2py welcome license --
+
+The web2py welcome app is licensed under public domain
+(except for the css and js files that it includes, which have their own third party licenses).
+
+You can modify this license when you add your own code.
