@@ -5,6 +5,8 @@ import os
 LOGGER = logging.getLogger(__file__)
 
 def readtree(db, spec):
+    import sloecoach.db.file
+
     fs_tree_root = os.path.normpath(spec.stack_row.f_infopath)
     selector = spec.selector
 
@@ -18,4 +20,5 @@ def readtree(db, spec):
                 # Apply selector to current file
                 file_path = os.path.join(fs_tree_root, dirpath, filename)
                 if not selector or selector_select_on_file_subpath(file_subpath):
-                    pass
+                    sloecoach.db.file.update_from_file(dir_path, dir_subpath, filename)
+
