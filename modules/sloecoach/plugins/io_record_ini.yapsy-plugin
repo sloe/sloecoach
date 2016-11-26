@@ -1,0 +1,9 @@
+[Core]
+Name = io_record_ini
+Module = io_record_ini
+
+[Documentation]
+Author = Sloen Ranger
+Version = 0.1
+Website = http://oarstack.com
+Description = INI file reader and writer
