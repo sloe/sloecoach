@@ -4,7 +4,7 @@ import sloecoach.iplugin
 import ConfigParser
 import logging
 
-LOGGER = logging.getLogger(__file__)
+LOGGER = logging.getLogger("module.sloecoach.plugins.io_record_ini")
 LOGGER.setLevel(logging.DEBUG)
 
 class IoRecordIni(sloecoach.iplugin.IPlugin):

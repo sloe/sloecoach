@@ -7,7 +7,7 @@ import os
 from gluon.storage import Storage
 import yapsy.PluginManager
 
-LOGGER = logging.getLogger(__file__)
+LOGGER = logging.getLogger("module.sloecoach.plugins")
 LOGGER.setLevel(logging.DEBUG)
 
 

@@ -1,4 +1,6 @@
 
+import os
+
 from gluon.storage import Storage
 
 def readtree():
@@ -8,11 +10,17 @@ def readtree():
         redirect(URL('select', 'stack', vars=dict(redirect=URL())))
 
     import sloecoach.db.despatcher
+    import sloecoach.selector
+
+    selector = sloecoach.selector.Selector(
+        basename_filters_allow_only=stack_row.f_filter_metafile.split(',')
+    )
 
     despatchable = sloecoach.db.despatcher.Despatchable(
         api_name="readtree",
         spec = Storage(
-            stack_row=stack_row
+            metadata_root_path=os.path.normpath(stack_row.f_infopath),
+            selector=selector
         )
     )
 

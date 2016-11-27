@@ -35,6 +35,7 @@ db.define_table(
 db.define_table(
     'scstack',
     Field("f_name", comment="Primary name of stack"),
+    Field("f_filter_metafile", comment="Filter to select metadata files", default=".ini"),
     Field("f_infopath", comment="Path to root directory of info file tree"),
     Field("f_videopath", comment="Path to root directory of video file tree")
 )

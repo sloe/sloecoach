@@ -3,7 +3,7 @@ import logging
 
 import yapsy.IPlugin
 
-LOGGER = logging.getLogger(__file__)
+LOGGER = logging.getLogger("module.sloecoach.iplugin")
 LOGGER.setLevel(logging.DEBUG)
 
 class IPlugin(yapsy.IPlugin.IPlugin):
