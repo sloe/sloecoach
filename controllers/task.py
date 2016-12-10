@@ -19,7 +19,7 @@ def readtree():
     despatchable = sloecoach.db.despatcher.Despatchable(
         api_name="readtree",
         spec = Storage(
-            metadata_root_path=os.path.normpath(stack_row.f_infopath),
+            metadata_root_path=stack_row.f_infopath,
             selector=selector
         )
     )

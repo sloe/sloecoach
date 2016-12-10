@@ -1,0 +1,9 @@
+[Core]
+Name = db_record_basic
+Module = db_record_basic
+
+[Documentation]
+Author = Sloen Ranger
+Version = 0.1
+Website = http://oarstack.com
+Description = Record to database transfer for basic types
