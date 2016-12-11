@@ -16,10 +16,9 @@ def update_from_file(db, dir_path, dir_subpath, filename):
     def __io_selector(plugin):
         return file_ext in plugin.metadata.read_extensions
 
-    io_plugin_object = sloecoach.plugins.PluginManager.instance.select_plugin_object("io_record", __io_selector, "loader for file extension %s" % file_ext)
-    record = io_plugin_object.io_record_read_file(full_path)
+    io_plugin_obj = sloecoach.plugins.PluginManager.instance.select_plugin_object("io_record", __io_selector, "loader for file extension %s" % file_ext)
+    record = io_plugin_obj.io_record_read_file(full_path)
     LOGGER.debug("Loaded %s/%s: %s", dir_subpath, filename, record)
-
 
     for obj_type_str, obj_data in record.iteritems():
         obj_type = obj_type_str.split("-")[0]
@@ -35,4 +34,4 @@ def update_from_file(db, dir_path, dir_subpath, filename):
 
         update_method = db_plugin.metadata.update_methods[obj_type]
 
-        update_method(db_plugin.plugin_object, db, obj_data)
+        update_method(db_plugin.plugin_obj, db, obj_data, dir_subpath)

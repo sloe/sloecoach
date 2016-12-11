@@ -58,6 +58,10 @@ class RecordTemplate(object):
                 self.db_record[field_name] = self.handle_db_field(field_name)
 
 
+    def adjust_db_fields(self):
+        pass
+
+
     def filter_unused_from_record(self, unused_from_record):
         return unused_from_record
 
@@ -102,6 +106,7 @@ class RecordTemplate(object):
         self.init_unused_from_record()
         self.init_missing_fields()
         self.iterate_db_fields()
+        self.adjust_db_fields()
         message = self.generate_log_message(self.unused_from_record, self.missing_fields)
         self.output_log_message(message)
         self.insert_item()

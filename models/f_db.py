@@ -4,6 +4,21 @@ g_treenode_items = (
     Field("f_uuid", length=64)
 )
 
+
+db.define_table(
+    'scprimacy',
+    Field("f_name", comment="Name of primacy"),
+    Field("f_description", comment="Description")
+)
+
+
+db.define_table(
+    'scworth',
+    Field("f_name", comment="Name of worth"),
+    Field("f_description", comment="Description")
+)
+
+
 db.define_table(
     'scitem',
     g_treenode_items,
@@ -17,6 +32,8 @@ db.define_table(
     Field("f_audio_nb_frames", 'bigint', comment="Number of audio frames"),
     Field("f_audio_sample_fmt", comment="Audio sample format"),
     Field("f_audio_sample_rate", 'double', comment="Audio sample rate (samples per second)"),
+    Field("f_primacy", "reference scprimacy", comment="Primacy"),
+    Field("f_subtree", comment="Subtree string"),
     Field("f_video_avg_frame_rate", comment="Video frame rate (frames per second)"),
     Field("f_video_bit_rate", 'double', comment="Video bit rate (bits per second)"),
     Field("f_video_codec_name", comment="Name of video codec"),
@@ -28,7 +45,8 @@ db.define_table(
     Field("f_video_nb_frames", 'bigint', comment="Number of video frames"),
     Field("f_video_pix_fmt", comment="Video pixel format"),
     Field("f_video_size", 'bigint', comment="Video size (bytes)"),
-    Field("f_video_width", 'integer', comment="Width of video (pixels)")
+    Field("f_video_width", 'integer', comment="Width of video (pixels)"),
+    Field("f_worth", "reference scworth", comment="Worth")
 )
 
 

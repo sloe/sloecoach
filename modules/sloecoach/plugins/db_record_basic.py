@@ -11,10 +11,40 @@ LOGGER.setLevel(logging.DEBUG)
 
 class _ItemLoader(sloecoach.db.record_template.RecordTemplate):
 
+    def __init__(self, db, target_db, record, dir_subpath):
+        sloecoach.db.record_template.RecordTemplate.__init__(self, db, db.scitem, record)
+        self.dir_subpath = dir_subpath
+
+
     def handle_field_not_found(self, field_name):
         record_auto_name = "auto_%s" % self.field_name_to_record_name(field_name)
         record_value = self.record.get(record_auto_name)
         return record_auto_name, record_value
+
+
+    def adjust_db_fields(self):
+        _db = self.db
+        split_subpath = self.dir_subpath.split("/")
+        primacy_name, worth_name, subtree = split_subpath[0], split_subpath[1], split_subpath[2:]
+
+        for count in range(2):
+            primacy_row = _db(_db.scprimacy.f_name == primacy_name).select(_db.scprimacy.id).first()
+            worth_row = _db(_db.scworth.f_name == worth_name).select(_db.scworth.id).first()
+
+            if primacy_row and worth_row:
+                break
+
+            if count > 0:
+                raise Exception("Unknown primacy ('%s') or worth ('%s')" % (primacy_name, worth_name))
+            import sloecoach.db.ensure_basis
+            sloecoach.db.ensure_basis.ensure_basis(_db)
+
+        self.db_record.update(dict(
+            f_primacy=primacy_row.id,
+            f_worth=worth_row.id,
+            f_subtree=subtree
+        ))
+
 
     def filter_missing_fields(self, missing_fields):
         if not self.record.get("audio_channels"):
@@ -25,58 +55,28 @@ class _ItemLoader(sloecoach.db.record_template.RecordTemplate):
 
 class DbRecordBasic(sloecoach.iplugin.IPlugin):
 
-    def update_item(self, db, record):
-        LOGGER.debug("Updating item %s", record)
+    def ensure_basis(self, db):
+        LOGGER.info("Ensuring that basic entries are present in database")
 
-        record_template = _ItemLoader(db, db.scitem, record)
+        for name, description in (
+            ("capture", "Captured footage"),
+            ("primary", "Pristine footage used for generating releaseable (final) footage"),
+            ("final", "End product footage for distribution")):
+            db.scprimacy.update_or_insert(db.scprimacy.f_name == name, f_name=name, f_description=description)
 
-        record_template.enter()
+        for name, description in (
+            ("precious", "Footage that cannot be recreated"),
+            ("derived", "Footage that can be recreated, typically derived from other footage"),
+            ("junk", "Junk footage where loos is not important")):
+            db.scworth.update_or_insert(db.scworth.f_name == name, f_name=name, f_description=description)
 
-
-    def update_item_not(self, db, record):
-        LOGGER.debug("Updating item %s", record)
-
-        db_record = {}
-
-        unused_from_record = set(record.keys())
-        unused_from_record.remove("type")
-
-        missing_fields = []
-
-        for field_name in db.scitem.fields:
-            if field_name.startswith("f_"):
-                record_name = field_name[2:]
-                record_value = record.get(record_name)
-                if record_value is not None:
-                    unused_from_record.remove(record_name)
-                else:
-                    record_auto_name = "auto_%s" % record_name
-                    record_value = record.get(record_auto_name)
-                    if record_value is not None:
-                        unused_from_record.remove(record_auto_name)
-                    else:
-                        missing_fields.append(record_name)
-
-                db_record[field_name] = record_value
-
-        if unused_from_record or missing_fields:
-            if not record.get("audio_channels"):
-                missing_fields = [x for x in missing_fields if not x.startswith("audio_")]
-            message = []
-            if unused_from_record:
-                message.append("Unused from record: %s" % ", ".join(unused_from_record))
-            if missing_fields:
-                message.append("Fields missing from record: %s" % ", ".join(missing_fields))
-            if message:
-                LOGGER.debug("; ".join(message))
-
-
-
-        db.scitem.insert(**db_record)
         db.commit()
-        pass
 
 
+    def update_item(self, db, record, dir_subpath):
+        LOGGER.debug("Updating item %s", record)
+        record_template = _ItemLoader(db, db.scitem, record, dir_subpath)
+        record_template.enter()
 
 
     METADATA = dict(

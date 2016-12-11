@@ -15,7 +15,9 @@ response.menu = [
         (T("Stacks"), False, URL("config", "stacks"), [])
     ]),
     (T("Properties"), False, None, [
-        (T("Item properties"), False, URL("props", "items"), [])
+        (T("Items"), False, URL("props", "items"), []),
+        (T("Primacies"), False, URL("props", "primacy"), []),
+        (T("Worths"), False, URL("props", "worth"), [])
     ]),
     (T("Tasks"), False, None, [
         (T("Read data tree"), False, URL("task", "readtree"), []),

@@ -1,5 +1,7 @@
 
 import exceptions
+import fnmatch
+import itertools
 import logging
 import operator
 import os
@@ -35,7 +37,7 @@ class PluginManager(object):
             record.merit = plugin.plugin_object.MERIT
             record.metadata = Storage(plugin.plugin_object.METADATA)
             record.plugin = plugin
-            record.plugin_object = plugin.plugin_object
+            record.plugin_obj = plugin.plugin_object
 
             if record.plugin_type not in self.by_type:
                 self.by_type[record.plugin_type] = []
@@ -46,10 +48,15 @@ class PluginManager(object):
 
     def select_multiple_plugins(self, plugin_type, selector_fn):
         selected = []
-        plugins_for_type = self.by_type.get(plugin_type, [])
+        plugins_for_type = []
+        for key in sorted(self.by_type.keys()):
+            if fnmatch.fnmatch(key, plugin_type):
+                plugins_for_type += self.by_type[key]
+
         for plugin_for_type in plugins_for_type:
             if not selector_fn or selector_fn(plugin_for_type):
                 selected.append(plugin_for_type)
+
         return selected
 
 
@@ -64,7 +71,7 @@ class PluginManager(object):
 
     def select_plugin_object(self, plugin_type, selector_fn, error_message):
         plugin = self.select_plugin(plugin_type, selector_fn, error_message)
-        return plugin.plugin_object
+        return plugin.plugin_obj
 
 
     def load_standard_paths(self):
