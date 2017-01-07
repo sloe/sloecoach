@@ -47,6 +47,8 @@ class _ItemLoader(sloecoach.db.record_template.RecordTemplate):
 
 
     def filter_missing_fields(self, missing_fields):
+        removeables = ("primacy", "subtree", "worth")
+        missing_fields = [x for x in missing_fields if x not in removeables]
         if not self.record.get("audio_channels"):
             missing_fields = [x for x in missing_fields if not x.startswith("audio_")]
 

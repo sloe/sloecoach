@@ -2,7 +2,10 @@
 import sloecoach.iplugin
 
 import ConfigParser
+import datetime
+import hashlib
 import logging
+import os
 
 LOGGER = logging.getLogger("module.sloecoach.plugins.io_record_ini")
 LOGGER.setLevel(logging.DEBUG)
@@ -14,6 +17,17 @@ class IoRecordIni(sloecoach.iplugin.IPlugin):
         write_extensions=[".ini"]
     )
     TYPE="io_record"
+
+
+    @staticmethod
+    def io_record_read_fp_fingerprint(ini_fp):
+        fstat = os.fstat(ini_fp.fileno())
+        ini_data = {}
+        ini_data["fpn_filesize"] = fstat.st_size
+        ini_data["fpn_filemtime"] = datetime.datetime.fromtimestamp(fstat.st_mtime)
+        ini_data["fpn_filehash"] = hashlib.sha256(ini_fp.read()).hexdigest()
+        return ini_data
+
 
     @staticmethod
     def io_record_read_fp(ini_fp):
@@ -29,8 +43,20 @@ class IoRecordIni(sloecoach.iplugin.IPlugin):
 
         return ini_data
 
+
     @classmethod
-    def io_record_read_file(cls, filepath):
+    def io_record_read_file_fingerprint(cls, dir_path, dir_subpath, filename):
+        filepath = os.path.join(dir_path, dir_subpath, filename)
+        with open(filepath) as fp:
+            ini_data = cls.io_record_read_fp_fingerprint(fp)
+            ini_data["fpn_filepath"] = "/".join((dir_subpath, filename))
+
+        return ini_data
+
+
+    @classmethod
+    def io_record_read_file(cls, dir_path, dir_subpath, filename):
+        filepath = os.path.join(dir_path, dir_subpath, filename)
         with open(filepath) as fp:
             ini_data = cls.io_record_read_fp(fp)
 

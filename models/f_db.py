@@ -1,7 +1,11 @@
 
 
 g_treenode_items = (
-    Field("f_uuid", length=64)
+    Field("f_fpn_filehash", comment="SHA256 of the file backing this item", length=64),
+    Field("f_fpn_filepath", comment="Path of file backing this item, within the stack"),
+    Field("f_fpn_filesize", "bigint", comment="Size of file backing this item"),
+    Field("f_fpn_filemtime", "datetime", comment="Timestamp of file backing this item"),
+    Field("f_uuid", comment="Unique identifer", length=64)
 )
 
 
@@ -21,7 +25,6 @@ db.define_table(
 
 db.define_table(
     'scitem',
-    g_treenode_items,
     Field("f_leafname", comment="Leafname (filename) of item"),
     Field("f_name", comment="Primary name of item"),
     Field("f_common_id", comment="IDs of related items in common ID format"),
@@ -46,7 +49,8 @@ db.define_table(
     Field("f_video_pix_fmt", comment="Video pixel format"),
     Field("f_video_size", 'bigint', comment="Video size (bytes)"),
     Field("f_video_width", 'integer', comment="Width of video (pixels)"),
-    Field("f_worth", "reference scworth", comment="Worth")
+    Field("f_worth", "reference scworth", comment="Worth"),
+    *g_treenode_items
 )
 
 
