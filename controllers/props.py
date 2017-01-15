@@ -3,6 +3,10 @@
 def index():
     return dict()
 
+def albums():
+    grid = SQLFORM.grid(db.scalbum)
+    return dict(grid=grid)
+
 def items():
     grid = SQLFORM.grid(db.scitem)
     return dict(grid=grid)

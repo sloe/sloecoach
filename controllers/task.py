@@ -20,6 +20,7 @@ def readtree():
         api_name="readtree",
         spec = Storage(
             metadata_root_path=stack_row.f_infopath,
+            name=stack_row.f_name,
             selector=selector
         )
     )

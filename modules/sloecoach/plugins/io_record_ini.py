@@ -24,7 +24,7 @@ class IoRecordIni(sloecoach.iplugin.IPlugin):
         fstat = os.fstat(ini_fp.fileno())
         ini_data = {}
         ini_data["fpn_filesize"] = fstat.st_size
-        ini_data["fpn_filemtime"] = datetime.datetime.fromtimestamp(fstat.st_mtime)
+        ini_data["fpn_filemtime"] = datetime.datetime.fromtimestamp(fstat.st_mtime).replace(microsecond=0)
         ini_data["fpn_filehash"] = hashlib.sha256(ini_fp.read()).hexdigest()
         return ini_data
 

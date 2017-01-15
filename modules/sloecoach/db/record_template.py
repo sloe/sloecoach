@@ -70,27 +70,62 @@ class RecordTemplate(object):
         return missing_fields
 
 
+    def _get_object_name(self):
+        name_fields = ("f_name", "f_leafname", "f_uuid")
+        name = "<unknown>"
+        for name_field in name_fields:
+            name = self.db_record.get(name_field)
+            if name:
+                break
+        return name
+
+
     def generate_log_message(self, unused_from_record, missing_fields):
         message = []
         if unused_from_record or missing_fields:
+            name = self._get_object_name()
+
             if unused_from_record:
                 unused_from_record = self.filter_unused_from_record(self.unused_from_record)
             if missing_fields:
                 missing_fields = self.filter_missing_fields(self.missing_fields)
 
             if unused_from_record:
-                message.append("Unused from record: %s" % ", ".join(sorted(unused_from_record)))
+                message.append("Unused from record for %s \"%s\": %s" % (self.NAME, name, ", ".join(sorted(unused_from_record))))
             if missing_fields:
-                message.append("Fields missing from record: %s" % ", ".join(sorted(missing_fields)))
+                message.append("Fields missing from record for %s \"%s\": %s" % (self.NAME, name, ", ".join(sorted(missing_fields))))
         return message
 
 
     def output_log_message(self, message):
-        LOGGER.debug(";\n  ".join(message))
+        if message:
+            LOGGER.debug(";\n  ".join(message))
 
 
-    def insert_item(self):
-        self.target_db.insert(**self.db_record)
+    def update_or_insert_item(self):
+        item_uuid = self.db_record.get("f_uuid")
+        if not item_uuid:
+            raise Exception("UUID missing from record item %s" % self.db_record)
+        else:
+            existing_row = self.db(self.target_db.f_uuid == item_uuid).select(for_update=True).first()
+            if not existing_row:
+                self.target_db.insert(**self.db_record)
+            else:
+                fpn_fields = [x for x in self.target_db.fields if x.startswith("f_fpn_")]
+                is_match = True
+                for fpn_field in fpn_fields:
+                    existing_value = existing_row.get(fpn_field)
+                    new_value = self.db_record.get(fpn_field)
+                    if not existing_value or existing_value != new_value:
+                        LOGGER.debug("Fingerprint mismatch for %s, existing %s != new %s", fpn_field, existing_value, new_value)
+                        is_match = False
+                        break
+
+                if is_match:
+                    pass # Match, so update not required
+                else:
+                    existing_row.update_record(**self.db_record)
+
 
 
     def commit_db(self):
@@ -109,5 +144,5 @@ class RecordTemplate(object):
         self.adjust_db_fields()
         message = self.generate_log_message(self.unused_from_record, self.missing_fields)
         self.output_log_message(message)
-        self.insert_item()
+        self.update_or_insert_item()
         self.commit_db()

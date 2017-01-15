@@ -15,6 +15,7 @@ response.menu = [
         (T("Stacks"), False, URL("config", "stacks"), [])
     ]),
     (T("Properties"), False, None, [
+        (T("Albums"), False, URL("props", "albums"), []),
         (T("Items"), False, URL("props", "items"), []),
         (T("Primacies"), False, URL("props", "primacy"), []),
         (T("Worths"), False, URL("props", "worth"), [])

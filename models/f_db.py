@@ -5,7 +5,7 @@ g_treenode_items = (
     Field("f_fpn_filepath", comment="Path of file backing this item, within the stack"),
     Field("f_fpn_filesize", "bigint", comment="Size of file backing this item"),
     Field("f_fpn_filemtime", "datetime", comment="Timestamp of file backing this item"),
-    Field("f_uuid", comment="Unique identifer", length=64)
+    Field("f_uuid", comment="Unique identifer", length=64, notnull=True, unique=True)
 )
 
 
@@ -20,6 +20,27 @@ db.define_table(
     'scworth',
     Field("f_name", comment="Name of worth"),
     Field("f_description", comment="Description")
+)
+
+db.define_table(
+    'scalbum',
+    Field("f_name", comment="Primary name of item"),
+
+    Field("f_capture_device", comment="Device (camera, etc.) used to capture footage"),
+    Field("f_capture_info", comment="Capture details (frame rate, resolution, etc.)"),
+    Field("f_event_time", comment="Time of event (free form for display)"),
+    Field("f_event_title", comment="Main title for event"),
+    Field("f_location", comment="Geographic location of event"),
+    Field("f_order", 'double', comment="Tags relevant to the site"),
+    Field("f_primacy", "reference scprimacy", comment="Primacy"),
+    Field("f_sitetag", comment="Tags relevant to the site"),
+    Field("f_source_album_uuid", comment="Source album identifier", length=64),
+    Field("f_subevent_title", comment="Subtitle for event"),
+    Field("f_subtree", comment="Subtree string"),
+    Field("f_tags", comment="Tags relevant to this album"),
+    Field("f_title", comment="Title of album"),
+    Field("f_worth", "reference scworth", comment="Worth"),
+    *g_treenode_items
 )
 
 

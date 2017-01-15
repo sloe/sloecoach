@@ -9,11 +9,73 @@ LOGGER = logging.getLogger("module.sloecoach.plugins.db_record_basic")
 LOGGER.setLevel(logging.DEBUG)
 
 
-class _ItemLoader(sloecoach.db.record_template.RecordTemplate):
+class _TreeLoader(sloecoach.db.record_template.RecordTemplate):
+    NAME="<not set>"
 
     def __init__(self, db, target_db, record, dir_subpath):
-        sloecoach.db.record_template.RecordTemplate.__init__(self, db, db.scitem, record)
+        sloecoach.db.record_template.RecordTemplate.__init__(self, db, target_db, record)
         self.dir_subpath = dir_subpath
+
+
+    def adjust_db_fields(self):
+        _db = self.db
+
+        # Derive primacy and worth from the path
+        split_subpath = self.dir_subpath.split("/")
+        if len(split_subpath) == 1:
+            primacy_name, worth_name, subtree = split_subpath[0], None, None
+        elif len(split_subpath) == 2:
+            primacy_name, worth_name, subtree = split_subpath[0], split_subpath[1], None
+        else:
+            primacy_name, worth_name, subtree = split_subpath[0], split_subpath[1], split_subpath[2:]
+
+        if primacy_name and worth_name:
+            for count in range(2):
+                primacy_row = _db(_db.scprimacy.f_name == primacy_name).select(_db.scprimacy.id).first()
+                worth_row = _db(_db.scworth.f_name == worth_name).select(_db.scworth.id).first()
+
+                if primacy_row and worth_row:
+                    break
+
+                if count > 0:
+                    raise Exception("Unknown primacy ('%s') or worth ('%s')" % (primacy_name, worth_name))
+                # Shouldn't be missing so make sure basic configuration is in the database
+                import sloecoach.db.ensure_basis
+                sloecoach.db.ensure_basis.ensure_basis(_db)
+
+            self.db_record.update(dict(
+                f_primacy=primacy_row.id,
+                f_worth=worth_row.id,
+                f_subtree=subtree
+            ))
+        else:
+            self.db_record.update(dict(
+                f_primacy=None,
+                f_worth=None,
+                f_subtree=None
+            ))
+
+class _AlbumLoader(_TreeLoader):
+    NAME = "album"
+
+    def __init__(self, db, target_db, record, dir_subpath):
+        _TreeLoader.__init__(self, db, target_db, record, dir_subpath)
+
+
+    def filter_missing_fields(self, missing_fields):
+        removeables = ("capture_device", "capture_info", "event_time", "event_title",
+                       "location", "order", "primacy", "sitetag", "source_album_uuid",
+                       "subevent_title", "subtree", "tags", "worth")
+        missing_fields = [x for x in missing_fields if x not in removeables]
+
+        return missing_fields
+
+
+class _ItemLoader(_TreeLoader):
+    NAME = "item"
+
+    def __init__(self, db, target_db, record, dir_subpath):
+        _TreeLoader.__init__(self, db, target_db, record, dir_subpath)
 
 
     def handle_field_not_found(self, field_name):
@@ -22,32 +84,8 @@ class _ItemLoader(sloecoach.db.record_template.RecordTemplate):
         return record_auto_name, record_value
 
 
-    def adjust_db_fields(self):
-        _db = self.db
-        split_subpath = self.dir_subpath.split("/")
-        primacy_name, worth_name, subtree = split_subpath[0], split_subpath[1], split_subpath[2:]
-
-        for count in range(2):
-            primacy_row = _db(_db.scprimacy.f_name == primacy_name).select(_db.scprimacy.id).first()
-            worth_row = _db(_db.scworth.f_name == worth_name).select(_db.scworth.id).first()
-
-            if primacy_row and worth_row:
-                break
-
-            if count > 0:
-                raise Exception("Unknown primacy ('%s') or worth ('%s')" % (primacy_name, worth_name))
-            import sloecoach.db.ensure_basis
-            sloecoach.db.ensure_basis.ensure_basis(_db)
-
-        self.db_record.update(dict(
-            f_primacy=primacy_row.id,
-            f_worth=worth_row.id,
-            f_subtree=subtree
-        ))
-
-
     def filter_missing_fields(self, missing_fields):
-        removeables = ("primacy", "subtree", "worth")
+        removeables = ("common_id", "primacy", "subtree", "worth")
         missing_fields = [x for x in missing_fields if x not in removeables]
         if not self.record.get("audio_channels"):
             missing_fields = [x for x in missing_fields if not x.startswith("audio_")]
@@ -75,13 +113,20 @@ class DbRecordBasic(sloecoach.iplugin.IPlugin):
         db.commit()
 
 
+    def update_album(self, db, record, dir_subpath):
+        record_template = _AlbumLoader(db, db.scalbum, record, dir_subpath)
+        record_template.enter()
+
+
     def update_item(self, db, record, dir_subpath):
-        LOGGER.debug("Updating item %s", record)
         record_template = _ItemLoader(db, db.scitem, record, dir_subpath)
         record_template.enter()
 
 
     METADATA = dict(
-        update_methods=dict(item=update_item)
+        update_methods=dict(
+            album=update_album,
+            item=update_item
+        )
     )
     TYPE="db_record"
