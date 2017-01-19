@@ -29,5 +29,5 @@ def readtree(db, spec):
                 if selector.is_basename_selected(filename):
                     sloecoach.db.file.update_from_file(db, update_context, fs_tree_root, dir_subpath, filename)
 
-    LOGGER.info("Completed read of tree %s if %.2f seconds", spec.name, time.clock() - start_time)
+    LOGGER.info("Completed read of tree %s in %.2f seconds", spec.name, time.clock() - start_time)
 

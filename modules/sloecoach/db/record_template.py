@@ -18,7 +18,8 @@ class RecordTemplate(object):
 
     def init_unused_from_record(self):
         self.unused_from_record = set(self.record.keys())
-        self.unused_from_record.remove("type")
+        if "type" in self.unused_from_record:
+            self.unused_from_record.remove("type")
 
 
     def init_missing_fields(self):

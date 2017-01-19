@@ -55,6 +55,7 @@ class _TreeLoader(sloecoach.db.record_template.RecordTemplate):
                 f_subtree=None
             ))
 
+
 class _AlbumLoader(_TreeLoader):
     NAME = "album"
 
@@ -69,6 +70,14 @@ class _AlbumLoader(_TreeLoader):
         missing_fields = [x for x in missing_fields if x not in removeables]
 
         return missing_fields
+
+
+class _GenSpecLoader(sloecoach.db.record_template.RecordTemplate):
+    NAME = "genspec"
+
+    def __init__(self, db, target_db, record, dir_subpath):
+        sloecoach.db.record_template.RecordTemplate.__init__(self, db, target_db, record)
+
 
 
 class _ItemLoader(_TreeLoader):
@@ -93,6 +102,61 @@ class _ItemLoader(_TreeLoader):
         return missing_fields
 
 
+class _OutputSpecLoader(sloecoach.db.record_template.RecordTemplate):
+    NAME = "outputspec"
+
+    def __init__(self, db, target_db, record, dir_subpath):
+        sloecoach.db.record_template.RecordTemplate.__init__(self, db, target_db, record)
+
+
+class _PlaylistLoader(_TreeLoader):
+    NAME = "playlist"
+
+    def __init__(self, db, target_db, record, dir_subpath):
+        _TreeLoader.__init__(self, db, target_db, record, dir_subpath)
+
+    def filter_missing_fields(self, missing_fields):
+        removeables = ("selector_genspec_name", "primacy", "subtree", "worth")
+        missing_fields = [x for x in missing_fields if x not in removeables]
+
+        return missing_fields
+
+
+class _RemoteItemLoader(_TreeLoader):
+    NAME = "remoteitem"
+
+    def __init__(self, db, target_db, record, dir_subpath):
+        _TreeLoader.__init__(self, db, target_db, record, dir_subpath)
+
+
+    def filter_missing_fields(self, missing_fields):
+        removeables = ("primacy", "subtree", "worth")
+        missing_fields = [x for x in missing_fields if x not in removeables]
+
+        return missing_fields
+
+
+class _RemotePlaylistLoader(_TreeLoader):
+    NAME = "remoteplaylist"
+
+    def __init__(self, db, target_db, record, dir_subpath):
+        _TreeLoader.__init__(self, db, target_db, record, dir_subpath)
+
+
+    def filter_missing_fields(self, missing_fields):
+        removeables = ("primacy", "subtree", "worth")
+        missing_fields = [x for x in missing_fields if x not in removeables]
+
+        return missing_fields
+
+
+class _TransferSpecLoader(sloecoach.db.record_template.RecordTemplate):
+    NAME = "transferspec"
+
+    def __init__(self, db, target_db, record, dir_subpath):
+        sloecoach.db.record_template.RecordTemplate.__init__(self, db, target_db, record)
+
+
 class DbRecordBasic(sloecoach.iplugin.IPlugin):
 
     def ensure_basis(self, db):
@@ -107,7 +171,7 @@ class DbRecordBasic(sloecoach.iplugin.IPlugin):
         for name, description in (
             ("precious", "Footage that cannot be recreated"),
             ("derived", "Footage that can be recreated, typically derived from other footage"),
-            ("junk", "Junk footage where loos is not important")):
+            ("junk", "Junk footage where loss is not important")):
             db.scworth.update_or_insert(db.scworth.f_name == name, f_name=name, f_description=description)
 
         db.commit()
@@ -118,15 +182,51 @@ class DbRecordBasic(sloecoach.iplugin.IPlugin):
         record_template.enter()
 
 
+    def update_genspec(self, db, record, dir_subpath):
+        record_template = _GenSpecLoader(db, db.scgenspec, record, dir_subpath)
+        record_template.enter()
+
+
     def update_item(self, db, record, dir_subpath):
         record_template = _ItemLoader(db, db.scitem, record, dir_subpath)
+        record_template.enter()
+
+
+    def update_outputspec(self, db, record, dir_subpath):
+        record_template = _OutputSpecLoader(db, db.scoutputspec, record, dir_subpath)
+        record_template.enter()
+
+
+    def update_playlist(self, db, record, dir_subpath):
+        record_template = _PlaylistLoader(db, db.scplaylist, record, dir_subpath)
+        record_template.enter()
+
+
+    def update_remoteitem(self, db, record, dir_subpath):
+        record_template = _RemotePlaylistLoader(db, db.scremoteitem, record, dir_subpath)
+        record_template.enter()
+
+
+    def update_remoteplaylist(self, db, record, dir_subpath):
+        record_template = _RemotePlaylistLoader(db, db.scremoteplaylist, record, dir_subpath)
+        record_template.enter()
+
+
+    def update_transferspec(self, db, record, dir_subpath):
+        record_template = _TransferSpecLoader(db, db.sctransferspec, record, dir_subpath)
         record_template.enter()
 
 
     METADATA = dict(
         update_methods=dict(
             album=update_album,
-            item=update_item
+            genspec=update_genspec,
+            item=update_item,
+            outputspec=update_outputspec,
+            playlist=update_playlist,
+            remoteitem=update_remoteitem,
+            remoteplaylist=update_remoteplaylist,
+            transferspec=update_transferspec
         )
     )
     TYPE="db_record"
