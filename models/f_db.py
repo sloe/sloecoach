@@ -97,6 +97,7 @@ db.define_table(
     *g_treenode_items
 )
 
+
 db.define_table(
     'scoutputspec',
     Field("f_name", comment="Primary name of outputspec"),

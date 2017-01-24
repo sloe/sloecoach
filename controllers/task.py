@@ -25,6 +25,6 @@ def readtree():
         )
     )
 
-    sloecoach.db.despatcher.Despatcher.execute(db, despatchable)
+    sloecoach.db.despatcher.Despatcher.execute(db, cache, despatchable)
 
     return dict()

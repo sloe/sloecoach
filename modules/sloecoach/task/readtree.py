@@ -9,7 +9,7 @@ import sloecoach.selector
 LOGGER = logging.getLogger("module.sloecoach.task.readtree")
 LOGGER.setLevel(logging.DEBUG)
 
-def readtree(db, spec):
+def readtree(db, cache, spec):
 
     LOGGER.info("Beginning read of tree %s", spec.name)
     start_time = time.clock()
@@ -27,7 +27,7 @@ def readtree(db, spec):
             for filename in filenames:
                 # Apply selector to current file
                 if selector.is_basename_selected(filename):
-                    sloecoach.db.file.update_from_file(db, update_context, fs_tree_root, dir_subpath, filename)
+                    sloecoach.db.file.update_from_file(db, cache, update_context, fs_tree_root, dir_subpath, filename)
 
     LOGGER.info("Completed read of tree %s in %.2f seconds", spec.name, time.clock() - start_time)
 

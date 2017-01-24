@@ -14,6 +14,6 @@ class Despatchable(Storage):
 class Despatcher(object):
 
     @classmethod
-    def execute(self, db, despatchable):
+    def execute(self, db, cache, despatchable):
         if despatchable.api_name == 'readtree':
-            sloecoach.task.readtree.readtree(db, despatchable.spec)
+            sloecoach.task.readtree.readtree(db, cache, despatchable.spec)
