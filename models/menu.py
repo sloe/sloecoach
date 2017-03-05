@@ -10,7 +10,9 @@ stack_title, stack_menu = sloecoach.db.stack.make_stack_menu(db, session.stack_i
 response.menu = [
     (T("Index"), False, URL("default", "index"),[]),
     (stack_title, False, None, stack_menu),
-
+    (T("Create"), False, None, [
+        (T("Event"), False, URL("create", "event"), [])
+    ]),
     (T("Configuration"), False, None, [
         (T("Stacks"), False, URL("config", "stacks"), [])
     ]),
@@ -28,6 +30,7 @@ response.menu = [
     ]),
     (T("Tasks"), False, None, [
         (T("Read data tree"), False, URL("task", "readtree"), []),
-        (T("Read primary footage"), False, URL("task", "readprimary"), [])
+        (T("Read primary footage"), False, URL("task", "readprimary"), []),
+        (T("Write data tree"), False, URL("task", "writetree"), [])
     ])
 ]

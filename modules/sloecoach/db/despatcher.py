@@ -1,5 +1,6 @@
 
 import sloecoach.task.readtree
+import sloecoach.task.writetree
 
 from gluon.storage import Storage
 
@@ -17,3 +18,6 @@ class Despatcher(object):
     def execute(self, db, cache, despatchable):
         if despatchable.api_name == 'readtree':
             sloecoach.task.readtree.readtree(db, cache, despatchable.spec)
+        elif despatchable.api_name == 'writetree':
+            sloecoach.task.writetree.writetree(db, cache, despatchable.spec)
+

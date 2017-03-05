@@ -163,8 +163,10 @@ db.define_table(
     'scstack',
     Field("f_name", comment="Primary name of stack"),
     Field("f_filter_metafile", comment="Filter to select metadata files", default=".ini"),
-    Field("f_infopath", comment="Path to root directory of info file tree"),
-    Field("f_videopath", comment="Path to root directory of video file tree")
+    Field("f_read_infopath", comment="Path to root directory of info file tree when reading"),
+    Field("f_read_videopath", comment="Path to root directory of video file tree when reading"),
+    Field("f_write_infopath", comment="Path to root directory of info file tree when writing"),
+    Field("f_write_videopath", comment="Path to root directory of video file tree when writing")
 )
 
 
